@@ -1,4 +1,4 @@
 {:schema "etzhayyim.migration/v1"
  :source {:repository "etzhayyim/root" :revision "c9e7df4b327a3ee7b5ed25fb3480db45553c33ed" :path "60-apps/etzhayyim-project-roukisho" :tree "db819fe4ee17ef22797d1fb9f6b03930465a2beb" :tracked-files 12 :bytes 20062}
- :destination {:repository "etzhayyim/com-etzhayyim-app-roukisho"}
+ :destination {:repository "cloud-itonami/app-roukisho"}
  :identity {:allowed-additions ["README.edn" "migration.edn"]}}
