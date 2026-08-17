@@ -97,7 +97,9 @@ git ls-tree HEAD | grep -v -e 'README.edn$' -e 'migration.edn$' \
 
 ### この検査が捕まえるもの / 捕まえないもの
 
-12 通りの変異を実際に当てて確かめた（無改変では exit 0）。
+12 通りの変異を実際に当てて確かめた。**無改変では exit 0** で、下の 12 はすべて
+期待どおりの値で終わった（`git clone` した使い捨てコピーに 1 つずつ当て、
+commit してから走らせている —— 未追跡の改変は §3 のとおり検査に見えない）。
 
 | 壊し方 | 結果 |
 |---|---|
@@ -122,9 +124,15 @@ git ls-tree HEAD | grep -v -e 'README.edn$' -e 'migration.edn$' \
 末尾に何を足しても素通りする。包めば全バイトを消費させられ、フォーム数が 1 でないことも
 検出できる。
 
-⚠ **`:destination` は誰も検査していない。** 書き換えても全検査が通る。custody の錨は
-`:source` 側なので影響は無いが、「この repo がどこに置かれるべきか」の記述は
-この repo の中では裏付けられない。
+⚠ **`:destination` は誰も検査していない。** 陰性対照として実際に
+`cloud-itonami/app-roukisho` → `evil/hijacked` に書き換えて走らせたところ、
+**exit 0 / PASS のままだった**。custody の錨は `:source` 側なので保管の判定には
+影響しないが、「この repo がどこに置かれるべきか」の記述は**この repo の中では
+裏付けられない**。
+
+（この陰性対照には意味がある。全部の変異が赤くなる検査は、単に壊れやすいだけで
+何も区別していない可能性がある。捕まえるものと捕まえないものの両方を見せて初めて、
+この検査が何を主張しているかが決まる。）
 
 ## 3. 配備される成果物をビルドする
 
@@ -144,8 +152,13 @@ node /path/to/com-junkawasaki/scripts/resource-guard.mjs run build -- npm instal
 node /path/to/com-junkawasaki/scripts/resource-guard.mjs run build -- npm run build
 ```
 
-実測: install exit **0**（`added 92 packages in 9s`）、build exit **0**
-（`✓ built in 452ms` / `✓ built in 4.09s` / `Using @sveltejs/adapter-cloudflare ✔ done`）。
+実測（2 回走らせて両方とも）: install exit **0**（`added 92 packages`）、build exit **0**
+（client と server の 2 段が `✓ built` で終わり、最後に
+`Using @sveltejs/adapter-cloudflare` `✔ done`）。
+
+⚠ **所要時間は書かない。** このマシンは並行 agent で load が高く、同じ手順の 2 回で
+`452ms → 410ms` / `4.09s → 4.39s` と振れた。判定に使うのは **exit code と成果物**であって
+秒数ではない。
 
 **成果物が本当に出来たか、そこに何が入っているか:**
 
@@ -185,7 +198,9 @@ git status --porcelain
 ```
 
 **§2 の検査はこれらを見ない**（追跡されていないので `git ls-files` にも
-`git ls-tree` にも出ない）。commit した瞬間に初めて FAIL する。消すには:
+`git ls-tree` にも出ない）。実測: この 3 つが残っている状態で
+`nbb docs/verify-custody.cljs` は **exit 0 / PASS** を返す。**commit した瞬間に初めて
+FAIL する**（M3 として実際に確かめた）。消すには:
 
 ```bash
 rm -rf .svelte-kit node_modules package-lock.json
@@ -216,25 +231,30 @@ lockfile も無い）。**`src/app.ts` はこの repo 単体では install も�
 
 ## 5. 宛先が生きているか
 
+**curl の exit code も一緒に印字すること。** `%{http_code}` は接続できなかったとき
+`000` を返すので、それだけ見ていると「HTTP 000 が返ってきた」と読めてしまう。
+
 ```bash
 for u in https://www.mhlw.go.jp/ \
          https://jsite.mhlw.go.jp/tokyo-roudoukyoku/ \
          https://roukisho.etzhayyim.com/ \
          https://mcp.etzhayyim.com/xrpc/com.etzhayyim.mcp.message ; do
-  printf '%-56s %s\n' "$u" "$(curl -sS -o /dev/null -w '%{http_code}' -m 15 -L "$u" 2>/dev/null || echo ERR)"
+  code=$(curl -sS -o /dev/null -w '%{http_code}' -m 15 -L "$u" 2>/dev/null); rc=$?
+  printf '%-56s http=%s curl-exit=%s\n' "$u" "$code" "$rc"
 done
 ```
 
 実測:
 
 ```
-https://www.mhlw.go.jp/                                  200
-https://jsite.mhlw.go.jp/tokyo-roudoukyoku/              200
-https://roukisho.etzhayyim.com/                          000
-https://mcp.etzhayyim.com/xrpc/com.etzhayyim.mcp.message 000
+https://www.mhlw.go.jp/                                  http=200 curl-exit=0
+https://jsite.mhlw.go.jp/tokyo-roudoukyoku/              http=200 curl-exit=0
+https://roukisho.etzhayyim.com/                          http=000 curl-exit=6
+https://mcp.etzhayyim.com/xrpc/com.etzhayyim.mcp.message http=000 curl-exit=6
 ```
 
-`000` は HTTP status ではなく**接続に至らなかった**という意味である。原因を分ける:
+**curl exit 6 は「ホスト名を解決できなかった」** —— TLS でも 404 でもなく DNS である。
+分けて確かめる:
 
 ```bash
 host roukisho.etzhayyim.com ; host etzhayyim.com
