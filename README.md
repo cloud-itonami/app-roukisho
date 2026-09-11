@@ -150,8 +150,8 @@ tree                    :  db819fe4ee17ef22797d1fb9f6b03930465a2beb
 足し引きが相殺する改変も捕まる。
 
 ```bash
-nbb docs/verify-custody.cljk            # ローカルのみ
-nbb docs/verify-custody.cljk --origin   # 出所 GitHub の実 tree とも突き合わせる
+kbb --backend sci docs/verify-custody.cljk            # ローカルのみ
+kbb --backend sci docs/verify-custody.cljk --origin   # 出所 GitHub の実 tree とも突き合わせる
 ```
 
 実測（exit 0）:
