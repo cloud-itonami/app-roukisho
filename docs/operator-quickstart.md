@@ -66,7 +66,7 @@ cloud-itonami	git@github.com:cloud-itonami/app-roukisho (push)
 ## 2. 保管検査（この repo の主たる仕事）
 
 ```bash
-nbb docs/verify-custody.cljk --origin
+kbb --backend sci docs/verify-custody.cljk --origin
 ```
 
 実測（exit **0**）:
@@ -199,7 +199,7 @@ git status --porcelain
 
 **§2 の検査はこれらを見ない**（追跡されていないので `git ls-files` にも
 `git ls-tree` にも出ない）。実測: この 3 つが残っている状態で
-`nbb docs/verify-custody.cljk` は **exit 0 / PASS** を返す。**commit した瞬間に初めて
+`kbb --backend sci docs/verify-custody.cljk` は **exit 0 / PASS** を返す。**commit した瞬間に初めて
 FAIL する**（M3 として実際に確かめた）。消すには:
 
 ```bash
