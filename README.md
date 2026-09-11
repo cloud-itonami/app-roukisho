@@ -150,8 +150,8 @@ tree                    :  db819fe4ee17ef22797d1fb9f6b03930465a2beb
 足し引きが相殺する改変も捕まる。
 
 ```bash
-nbb docs/verify-custody.cljs            # ローカルのみ
-nbb docs/verify-custody.cljs --origin   # 出所 GitHub の実 tree とも突き合わせる
+nbb docs/verify-custody.cljk            # ローカルのみ
+nbb docs/verify-custody.cljk --origin   # 出所 GitHub の実 tree とも突き合わせる
 ```
 
 実測（exit 0）:
@@ -179,7 +179,7 @@ GitHub 側の実 tree と比べるので合わなくなる。
 
 **`migration.edn` の `:identity :allowed-additions` は、この文書を足したときに
 3 エントリ増やした**（`README.md` / `docs/operator-quickstart.md` /
-`docs/verify-custody.cljs`）。これは記録を現実に合わせるための更新で、
+`docs/verify-custody.cljk`）。これは記録を現実に合わせるための更新で、
 custody の錨である `:source` ブロック（`:revision` / `:tree` / `:tracked-files` /
 `:bytes`）は 1 バイトも触っていない —— そちらを触れば §6 の検査が落ちる。
 
