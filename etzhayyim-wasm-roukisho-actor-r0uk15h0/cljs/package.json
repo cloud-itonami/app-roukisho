@@ -1,0 +1,12 @@
+{
+  "name": "etzhayyim-project-roukisho-appview-etzhayyim-wasm-roukisho-actor-r0uk15h0-cljs",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "shadow-cljs": "2.28.20"
+  }
+}

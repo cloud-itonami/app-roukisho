@@ -1,0 +1,7 @@
+;; roushiko appview — single-page app, single build/module.
+;; Mirrors the kafun-bokumetsu / app-saiban cljs layout (deps-mode config).
+{:deps {:aliases [:cljs]}
+ :builds {:app {:target :browser
+                :output-dir "public/js"
+                :asset-path "js"
+                :modules {:app {:init-fn roukisho.desktop/init!}}}}}
