@@ -145,7 +145,7 @@ npm run build
 ```
 
 ⚠ このワークスペースでは重いビルドを直接起動せず resource governor を通す
-（CLAUDE.md の repo-wide mandatory）:
+（AGENTS.md の repo-wide mandatory）:
 
 ```bash
 node /path/to/com-junkawasaki/scripts/resource-guard.mjs run build -- npm install --no-audit --no-fund
